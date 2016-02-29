@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 public class DotNetDateJsonConverter {
 
-    private static Pattern RE = Pattern.compile("^/Date\\((\\d+)([+-])(\\d{2})(\\d{2})\\)/$");
+    private static Pattern RE = Pattern.compile("^/Date\\((\\-?\\d+)([+-])(\\d{2})(\\d{2})\\)/$");
 
     /**
      * Returns a json representation of the given offsetDateTime.

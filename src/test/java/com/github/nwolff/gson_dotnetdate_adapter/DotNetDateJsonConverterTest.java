@@ -40,6 +40,14 @@ public class DotNetDateJsonConverterTest {
     }
 
     @Test
+    public void negativeMillis() throws ParseException {
+        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(1969, 12, 31), LocalTime.of(23, 0, 0), ZoneOffset.ofHoursMinutes(1, 00));
+        String s = "/Date(-3600000+0100)/";
+       //  assertEquals(s, toJson(d)); // We don't care about this
+       assertEquals(d, fromJson(s));
+    }
+
+    @Test
     public void testNull() throws ParseException {
         assertNull(toJson(null));
         assertNull(fromJson(null));
