@@ -24,27 +24,29 @@ public class DotNetDateJsonConverterTest {
     }
 
     @Test
-    public void positiveOffset() throws ParseException {
-        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(2015, 1, 1), LocalTime.of(10, 10, 10), ZoneOffset.ofHoursMinutes(1, 30));
-        String s = "/Date(1420107010000+0130)/";
-        assertEquals(s, toJson(d));
+    // We received events with timestamps that were before the opening time of the system, so we knew there was a problem.
+    public void exampleFromProdution() throws ParseException {
+        String s = "/Date(1512889962000+0100)/";
+        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(2017, 12, 10), LocalTime.of(8, 12, 42), ZoneOffset.ofHoursMinutes(1, 00));
         assertEquals(d, fromJson(s));
+        assertEquals(s, toJson(d));
     }
 
     @Test
-    public void negativeOffset() throws ParseException {
-        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(2015, 1, 1), LocalTime.of(10, 10, 10), ZoneOffset.ofHoursMinutes(-1, -30));
-        String s = "/Date(1420107010000-0130)/";
-        assertEquals(s, toJson(d));
+    // https://stackoverflow.com/questions/33224540/use-json-net-to-parse-json-date-of-format-dateepochtime-offset/33228106#33228106
+    public void exampleFromStackOverflow() throws ParseException {
+        String s = "/Date(1445301615000-0700)/";
+        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(2015, 10, 19), LocalTime.of(17, 40, 15), ZoneOffset.ofHoursMinutes(-7, 00));
         assertEquals(d, fromJson(s));
+        assertEquals(s, toJson(d));
     }
 
     @Test
     public void negativeMillis() throws ParseException {
-        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(1969, 12, 31), LocalTime.of(23, 0, 0), ZoneOffset.ofHoursMinutes(1, 00));
+        OffsetDateTime d = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.of(0, 0, 0), ZoneOffset.ofHoursMinutes(1, 00));
         String s = "/Date(-3600000+0100)/";
-       //  assertEquals(s, toJson(d)); // We don't care about this
-       assertEquals(d, fromJson(s));
+        assertEquals(d, fromJson(s));
+        assertEquals(s, toJson(d));
     }
 
     @Test
@@ -70,8 +72,6 @@ public class DotNetDateJsonConverterTest {
         String s = "/Date(1420107010000+0000)/ ";
         fromJson(s);
     }
-
-
 
 }
 

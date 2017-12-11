@@ -2,7 +2,6 @@ package com.github.nwolff.dotnetdate_json_converter;
 
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.regex.Matcher;
@@ -12,13 +11,8 @@ import java.util.regex.Pattern;
  * Converts between java.time.OffsetDateTime objects and the .net DateTime Wire Format: https://msdn.microsoft.com/en-us/library/bb412170%28v=vs.110%29.aspx
  * <p>
  * Excludes:
- * - We do not accept nor generate dates without an offset (which in the microsoft spec should be interpreted as a 'local date'
- * <p>
- * <p>
- * References:
- * -
- * - http://stackoverflow.com/questions/10286204/the-right-json-date-format
- * - http://stackoverflow.com/questions/9127529/how-to-parse-net-datetime-received-as-json-string-into-javas-date-object
+ * - We do not accept nor generate date-times without an offset (which the microsoft spec says should be interpreted as UTC date-times)
+ * </p>
  */
 public class DotNetDateJsonConverter {
 
@@ -35,9 +29,8 @@ public class DotNetDateJsonConverter {
             return null;
         }
 
-        LocalDateTime localDateTime = offsetDateTime.toLocalDateTime();
         // http://programmers.stackexchange.com/questions/225343/why-are-the-java-8-java-time-classes-missing-a-getmillis-method
-        long millis = localDateTime.toEpochSecond(ZoneOffset.UTC) * 1_000 + localDateTime.getNano() / 1_000_000;
+        long millis = offsetDateTime.toEpochSecond() * 1_000 + offsetDateTime.getNano() / 1_000_000;
 
         int offsetSeconds = offsetDateTime.getOffset().getTotalSeconds();
         int offsetHours = offsetSeconds / 3_600;
@@ -80,7 +73,6 @@ public class DotNetDateJsonConverter {
         String offsetHoursStr = matcher.group(3);
         String offsetMinutesStr = matcher.group(4);
         try {
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(millisStr)), ZoneOffset.UTC);
 
             int offsetHours = Integer.valueOf(offsetHoursStr);
             int offsetMinutes = Integer.valueOf(offsetMinutesStr);
@@ -90,7 +82,8 @@ public class DotNetDateJsonConverter {
             }
             ZoneOffset zoneOffset = ZoneOffset.ofHoursMinutes(offsetHours, offsetMinutes);
 
-            return OffsetDateTime.of(localDateTime, zoneOffset);
+            return OffsetDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(millisStr)), zoneOffset);
+
         } catch (NumberFormatException e) {
             throw new ParseException("Cannot parse " + json, e);
         }
